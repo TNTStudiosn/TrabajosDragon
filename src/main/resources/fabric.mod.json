@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "trabajosdragon",
+  "version": "${version}",
+  "name": "TrabajosDragon",
+  "description": "Mod Creado principalmente para DragonCraft v6",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/trabajosdragon/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "org.TNTStudios.trabajosdragon.client.TrabajosdragonClient"
+    ],
+    "main": [
+      "org.TNTStudios.trabajosdragon.Trabajosdragon"
+    ]
+  },
+  "mixins": [
+    "trabajosdragon.mixins.json",
+    {
+      "config": "trabajosdragon.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
