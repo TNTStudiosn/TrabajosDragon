@@ -26,7 +26,7 @@ public class TrabajosCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(CommandManager.literal("DragonEconomy")
-                    .requires(TrabajosCommand::hasAdminPermission) // Restricción de permiso
+                    .requires(source -> hasPermission(source, "DragonEconomy.admin"))
                     .then(CommandManager.literal("dar")
                             .then(CommandManager.argument("jugador", StringArgumentType.string())
                                     .suggests(TrabajosCommand::suggestPlayers) // Añadir autocompletado
@@ -97,13 +97,17 @@ public class TrabajosCommand {
      * @param source Fuente del comando.
      * @return {@code true} si tiene el permiso, {@code false} en caso contrario.
      */
-    private static boolean hasAdminPermission(ServerCommandSource source) {
-        if (source.getPlayer() == null) return false; // Asegurarse de que el ejecutante es un jugador
-
-        LuckPerms api = LuckPermsProvider.get();
-        User user = api.getUserManager().getUser(source.getPlayer().getUuid());
-
-        return user != null && user.getCachedData().getPermissionData().checkPermission("DragonEconomy.admin").asBoolean();
+    private static boolean hasPermission(ServerCommandSource source, String permission) {
+        if (source.getEntity() instanceof ServerPlayerEntity player) {
+            // Obtener el usuario de LuckPerms
+            net.luckperms.api.model.user.User user = net.luckperms.api.LuckPermsProvider.get().getUserManager().getUser(player.getUuid());
+            if (user != null) {
+                return user.getCachedData()
+                        .getPermissionData(net.luckperms.api.query.QueryOptions.defaultContextualOptions())
+                        .checkPermission(permission).asBoolean();
+            }
+        }
+        return false;
     }
 
     /**
