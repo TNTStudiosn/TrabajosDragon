@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
+import net.luckperms.api.query.QueryOptions;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -26,7 +27,7 @@ public class TrabajosCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(CommandManager.literal("DragonEconomy")
-                    .requires(source -> hasPermission(source, "DragonEconomy.admin"))
+                    .requires(source -> hasPermission(source, "DragonEconomy.admin")) // Solo usuarios con permisos
                     .then(CommandManager.literal("dar")
                             .then(CommandManager.argument("jugador", StringArgumentType.string())
                                     .suggests(TrabajosCommand::suggestPlayers) // Añadir autocompletado
@@ -46,26 +47,30 @@ public class TrabajosCommand {
      * @return Código de éxito del comando.
      */
     private static int executeDarCommand(CommandContext<ServerCommandSource> context) {
+        ServerCommandSource source = context.getSource();
+        if (!hasPermission(source, "DragonEconomy.admin")) {
+            source.sendMessage(
+                    Text.literal("⚠ No tienes permisos para ejecutar este comando.").formatted(Formatting.RED));
+            return 0;
+        }
+
         String playerName = StringArgumentType.getString(context, "jugador");
         int amount = IntegerArgumentType.getInteger(context, "cantidad");
 
-        ServerPlayerEntity sender = context.getSource().getPlayer();
-        ServerPlayerEntity receiver = context.getSource().getServer()
-                .getPlayerManager().getPlayer(playerName);
+        ServerPlayerEntity sender = source.getPlayer();
+        ServerPlayerEntity receiver = source.getServer().getPlayerManager().getPlayer(playerName);
 
         if (sender != null && receiver != null) {
             // Prevenir transferencias negativas o exageradamente grandes
             if (amount <= 0) {
-                context.getSource().sendMessage(
-                        Text.literal("⚠ La cantidad debe ser un número positivo.")
-                                .formatted(Formatting.RED));
+                source.sendMessage(
+                        Text.literal("⚠ La cantidad debe ser un número positivo.").formatted(Formatting.RED));
                 return 1;
             }
 
             if (amount > 1000000) { // Límite arbitrario para prevenir abusos
-                context.getSource().sendMessage(
-                        Text.literal("⚠ No puedes transferir una cantidad tan grande.")
-                                .formatted(Formatting.RED));
+                source.sendMessage(
+                        Text.literal("⚠ No puedes transferir una cantidad tan grande.").formatted(Formatting.RED));
                 return 1;
             }
 
@@ -74,19 +79,16 @@ public class TrabajosCommand {
             // Sincronizar el balance con el cliente receptor
             EconomyManager.sendBalanceToClient(receiver);
 
-            // Enviar mensaje de confirmación al emisor
-            context.getSource().sendMessage(
-                    Text.literal("✔ Se han enviado $" + amount + " a " + playerName)
-                            .formatted(Formatting.GREEN));
+            // Enviar mensaje de confirmación solo al emisor
+            sender.sendMessage(
+                    Text.literal("✔ Se han enviado $" + amount + " a " + playerName).formatted(Formatting.GREEN));
 
-            // Enviar mensaje de confirmación al receptor
+            // Enviar mensaje de confirmación solo al receptor
             receiver.sendMessage(
-                    Text.literal("✔ Has recibido $" + amount + " de un administrador.")
-                            .formatted(Formatting.GREEN), false);
+                    Text.literal("✔ Has recibido $" + amount + " de un administrador.").formatted(Formatting.GREEN), false);
         } else {
-            context.getSource().sendMessage(
-                    Text.literal("⚠ Jugador no encontrado.")
-                            .formatted(Formatting.RED));
+            source.sendMessage(
+                    Text.literal("⚠ Jugador no encontrado.").formatted(Formatting.RED));
         }
         return 1;
     }
@@ -99,22 +101,25 @@ public class TrabajosCommand {
      */
     private static boolean hasPermission(ServerCommandSource source, String permission) {
         if (source.getEntity() instanceof ServerPlayerEntity player) {
-            // Obtener el usuario de LuckPerms
-            net.luckperms.api.model.user.User user = net.luckperms.api.LuckPermsProvider.get().getUserManager().getUser(player.getUuid());
+            LuckPerms luckPerms = LuckPermsProvider.get();
+            User user = luckPerms.getUserManager().getUser(player.getUuid());
             if (user != null) {
                 return user.getCachedData()
-                        .getPermissionData(net.luckperms.api.query.QueryOptions.defaultContextualOptions())
-                        .checkPermission(permission).asBoolean();
+                        .getPermissionData(luckPerms.getContextManager().getQueryOptions(user)
+                                .orElse(QueryOptions.defaultContextualOptions())) // Manejo del Optional
+                        .checkPermission(permission)
+                        .asBoolean();
             }
         }
         return false;
     }
 
+
     /**
      * Proveedor de sugerencias que lista los nombres de los jugadores en línea.
      *
-     * @param context   Contexto del comando.
-     * @param builder   Constructor de sugerencias.
+     * @param context Contexto del comando.
+     * @param builder Constructor de sugerencias.
      * @return Un CompletableFuture con las sugerencias.
      */
     private static CompletableFuture<Suggestions> suggestPlayers(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
