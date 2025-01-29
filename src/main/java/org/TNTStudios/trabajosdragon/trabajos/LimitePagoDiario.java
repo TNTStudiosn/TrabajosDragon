@@ -8,16 +8,12 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class LimitePagoDiario {
-    private static final HashMap<UUID, Integer> pagosDiarios = new HashMap<>();
+    private static HashMap<UUID, Integer> pagosDiarios = new HashMap<>();
     private static LocalDate ultimaFecha = obtenerFechaCDMX();
     private static final int LIMITE_MINERO = 500;
 
     /**
      * Agrega una cantidad de pago al jugador, respetando el límite diario.
-     *
-     * @param player Jugador que recibe el pago.
-     * @param cantidad Cantidad a agregar.
-     * @return true si se realizó el pago, false si el límite fue alcanzado.
      */
     public static boolean agregarPago(ServerPlayerEntity player, int cantidad) {
         resetearSiEsNecesario();
@@ -54,5 +50,19 @@ public class LimitePagoDiario {
             pagosDiarios.clear();
             ultimaFecha = fechaActual;
         }
+    }
+
+    /**
+     * Obtiene el mapa de pagos diarios.
+     */
+    public static HashMap<UUID, Integer> getPagosDiarios() {
+        return pagosDiarios;
+    }
+
+    /**
+     * Establece el mapa de pagos diarios (usado por DataManager).
+     */
+    public static void setPagosDiarios(HashMap<UUID, Integer> pagosCargados) {
+        pagosDiarios = pagosCargados;
     }
 }

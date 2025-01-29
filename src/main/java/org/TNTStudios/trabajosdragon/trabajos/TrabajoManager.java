@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class TrabajoManager {
-    private static final HashMap<UUID, String> trabajos = new HashMap<>();
+    private static HashMap<UUID, String> trabajos = new HashMap<>();
 
     /**
      * Asigna un trabajo a un jugador, solo si no tiene uno ya.
@@ -41,5 +41,24 @@ public class TrabajoManager {
      */
     public static boolean tieneTrabajo(ServerPlayerEntity player, String trabajo) {
         return trabajo.equals(trabajos.get(player.getUuid()));
+    }
+
+    /**
+     * Obtiene el mapa de trabajos.
+     *
+     * @return Mapa de trabajos.
+     */
+    public static HashMap<UUID, String> getTrabajos() {
+        return trabajos;
+    }
+
+    /**
+     * Establece el mapa de trabajos (usado por DataManager).
+     *
+     * @param trabajosCargados Mapa de trabajos cargados.
+     */
+    public static void setTrabajos(HashMap<UUID, String> trabajosCargados) {
+        trabajos.clear();
+        trabajos.putAll(trabajosCargados);
     }
 }

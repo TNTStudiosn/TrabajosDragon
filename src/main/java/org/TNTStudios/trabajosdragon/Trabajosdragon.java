@@ -16,5 +16,6 @@ public class Trabajosdragon implements ModInitializer {
         EventoMinero.registrar();
         EventoLenador.registrar();
         EventoCazador.registrar();
+        DataManager.initialize();
     }
 }
