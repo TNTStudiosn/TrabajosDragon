@@ -3,10 +3,10 @@ package org.TNTStudios.trabajosdragon;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import org.TNTStudios.trabajosdragon.trabajos.LimitePagoDiario;
-import org.TNTStudios.trabajosdragon.trabajos.LimitePagoDiarioCazador;
-import org.TNTStudios.trabajosdragon.trabajos.LimitePagoDiarioLenador;
-import org.TNTStudios.trabajosdragon.trabajos.TrabajoManager;
+import org.TNTStudios.trabajosdragon.entidades.AgricultorEntity;
+import org.TNTStudios.trabajosdragon.entidades.CartografoEntity;
+import org.TNTStudios.trabajosdragon.entidades.PescadorEntity;
+import org.TNTStudios.trabajosdragon.trabajos.*;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -105,6 +105,9 @@ public class DataManager {
             limites.put("Minero", convertirUUIDaString(LimitePagoDiario.getPagosDiarios()));
             limites.put("Cazador", convertirUUIDaString(LimitePagoDiarioCazador.getPagosDiarios()));
             limites.put("Lenador", convertirUUIDaString(LimitePagoDiarioLenador.getPagosDiarios()));
+            limites.put("Agricultor", convertirUUIDaString(AgricultorEntity.getPagosDiarios()));
+            limites.put("Pescador", convertirUUIDaString(PescadorEntity.getPagosDiarios()));
+            limites.put("Cartografo", convertirUUIDaString(CartografoEntity.getPagosDiarios()));
 
             gson.toJson(limites, writer);
         } catch (IOException e) {
@@ -137,6 +140,21 @@ public class DataManager {
             if (limites.containsKey("Lenador")) {
                 HashMap<UUID, Integer> limitesLenador = convertirStringaUUID(limites.get("Lenador"));
                 LimitePagoDiarioLenador.setPagosDiarios(limitesLenador);
+            }
+
+            if (limites.containsKey("Agricultor")) {
+                HashMap<UUID, Integer> limitesAgricultor = convertirStringaUUID(limites.get("Agricultor"));
+                AgricultorEntity.setPagosDiarios(limitesAgricultor);
+            }
+
+            if (limites.containsKey("Pescador")) {
+                HashMap<UUID, Integer> limitesPescador = convertirStringaUUID(limites.get("Pescador"));
+                PescadorEntity.setPagosDiarios(limitesPescador);
+            }
+
+            if (limites.containsKey("Cartografo")) {
+                HashMap<UUID, Integer> limitesCartografo = convertirStringaUUID(limites.get("Cartografo"));
+                CartografoEntity.setPagosDiarios(limitesCartografo);
             }
         } catch (IOException e) {
             e.printStackTrace();

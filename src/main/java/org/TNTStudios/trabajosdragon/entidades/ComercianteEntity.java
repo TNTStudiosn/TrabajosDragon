@@ -1,13 +1,10 @@
 package org.TNTStudios.trabajosdragon.entidades;
 
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -15,10 +12,14 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
-import org.TNTStudios.dragoneconomy.EconomyManager;
+import org.TNTStudios.trabajosdragon.PagoManager;
+import org.TNTStudios.trabajosdragon.trabajos.TrabajoManager;
 
 import java.util.Collections;
 
+/**
+ * Clase base para todas las entidades comerciantes.
+ */
 public abstract class ComercianteEntity extends LivingEntity {
 
     protected ComercianteEntity(EntityType<? extends LivingEntity> entityType, World world) {
@@ -28,18 +29,41 @@ public abstract class ComercianteEntity extends LivingEntity {
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
         if (!this.getWorld().isClient && player instanceof ServerPlayerEntity serverPlayer) {
+            String trabajo = TrabajoManager.obtenerTrabajo(serverPlayer);
+            if (trabajo == null) {
+                serverPlayer.sendMessage(Text.literal("⚠ No tienes un trabajo asignado para interactuar con este comerciante.")
+                        .formatted(Formatting.RED), false);
+                return ActionResult.FAIL;
+            }
+
+            // Verificar si el trabajo del jugador coincide con la entidad
+            if (!trabajo.equalsIgnoreCase(getTrabajo())) {
+                serverPlayer.sendMessage(Text.literal("⚠ No puedes interactuar con este comerciante porque tu trabajo no coincide.")
+                        .formatted(Formatting.RED), false);
+                return ActionResult.FAIL;
+            }
+
             manejarVenta(serverPlayer);
             return ActionResult.SUCCESS;
         }
         return super.interact(player, hand);
     }
 
+    /**
+     * Devuelve el nombre del trabajo asociado a esta entidad.
+     */
+    protected abstract String getTrabajo();
+
+    /**
+     * Maneja la lógica de venta y pago al jugador.
+     */
     protected abstract void manejarVenta(ServerPlayerEntity player);
 
+    /**
+     * Realiza el pago al jugador.
+     */
     protected void pagarJugador(ServerPlayerEntity player, int cantidad) {
-        EconomyManager.addMoney(player.getUuid(), cantidad);
-        EconomyManager.sendBalanceToClient(player);
-        player.sendMessage(Text.literal("✔ Has recibido $" + cantidad + " por tu venta.").formatted(Formatting.GREEN), false);
+        PagoManager.pagarJugador(player, cantidad);
     }
 
     @Override
@@ -48,12 +72,12 @@ public abstract class ComercianteEntity extends LivingEntity {
     }
 
     @Override
-    public void equipStack(EquipmentSlot slot, ItemStack stack) {
+    public void equipStack(net.minecraft.entity.EquipmentSlot slot, ItemStack stack) {
         // No hacer nada, ya que estas entidades no necesitan equipamiento
     }
 
     @Override
-    public ItemStack getEquippedStack(EquipmentSlot slot) {
+    public ItemStack getEquippedStack(net.minecraft.entity.EquipmentSlot slot) {
         return ItemStack.EMPTY; // No tiene equipamiento
     }
 
@@ -71,7 +95,10 @@ public abstract class ComercianteEntity extends LivingEntity {
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.0); // No se mueve
     }
 
-    protected int removerItems(ServerPlayerEntity player, Item item, int cantidad, int pago) {
+    /**
+     * Remueve una cantidad específica de un item del inventario del jugador y retorna el pago correspondiente.
+     */
+    protected int removerItems(ServerPlayerEntity player, net.minecraft.item.Item item, int cantidad, int pago) {
         int cantidadRemovida = 0;
 
         for (int i = 0; i < player.getInventory().size(); i++) {
