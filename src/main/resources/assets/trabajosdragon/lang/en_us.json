@@ -1,0 +1,31 @@
+{
+  "entity.trabajosdragon.agricultor": "Agricultor",
+  "entity.trabajosdragon.pescador": "Pescador",
+  "entity.trabajosdragon.cartografo": "Cartógrafo",
+
+  "message.trabajosdragon.payment_received": "✔ Has recibido $%s por tu venta.",
+  "message.trabajosdragon.payment_limit_reached": "⚠ Has alcanzado el límite de dinero diario para este trabajo.",
+
+  "gui.trabajosdragon.sell_items": "Vender objetos",
+  "gui.trabajosdragon.confirm_sell": "¿Quieres vender %s por $%s?",
+  "gui.trabajosdragon.button_confirm": "Confirmar",
+  "gui.trabajosdragon.button_cancel": "Cancelar",
+
+  "item.trabajosdragon.wheat": "Trigo",
+  "item.trabajosdragon.carrot": "Zanahoria",
+  "item.trabajosdragon.potato": "Papa",
+  "item.trabajosdragon.melon": "Melón",
+  "item.trabajosdragon.pumpkin": "Calabaza",
+  "item.trabajosdragon.nether_wart": "Verruga del Nether",
+  "item.trabajosdragon.cod": "Bacalao",
+  "item.trabajosdragon.salmon": "Salmón",
+  "item.trabajosdragon.bow": "Arco",
+  "item.trabajosdragon.book": "Libro",
+  "item.trabajosdragon.map": "Mapa vacío",
+
+  "itemGroup.trabajosdragon.trabajos_dragon": "Trabajos Dragon",
+  "item.trabajosdragon.spawn_egg_agricultor": "Huevo de Spawn - Agricultor",
+  "item.trabajosdragon.spawn_egg_pescador": "Huevo de Spawn - Pescador",
+  "item.trabajosdragon.spawn_egg_cartografo": "Huevo de Spawn - Cartógrafo"
+
+}
