@@ -18,14 +18,27 @@ import org.TNTStudios.trabajosdragon.trabajos.TrabajoManager;
 import java.util.Collections;
 
 /**
- * Clase base para todas las entidades comerciantes.
+ * Clase abstracta base para todas las entidades comerciantes.
  */
 public abstract class ComercianteEntity extends LivingEntity {
 
+    /**
+     * Constructor de la clase ComercianteEntity.
+     *
+     * @param entityType Tipo de entidad.
+     * @param world      Mundo en el que se encuentra la entidad.
+     */
     protected ComercianteEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
 
+    /**
+     * Maneja la interacción del jugador con el comerciante.
+     *
+     * @param player Jugador que interactúa.
+     * @param hand   Mano con la que se interactúa.
+     * @return Resultado de la acción.
+     */
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
         if (!this.getWorld().isClient && player instanceof ServerPlayerEntity serverPlayer) {
@@ -51,16 +64,23 @@ public abstract class ComercianteEntity extends LivingEntity {
 
     /**
      * Devuelve el nombre del trabajo asociado a esta entidad.
+     *
+     * @return Nombre del trabajo.
      */
     protected abstract String getTrabajo();
 
     /**
      * Maneja la lógica de venta y pago al jugador.
+     *
+     * @param player Jugador que realiza la venta.
      */
     protected abstract void manejarVenta(ServerPlayerEntity player);
 
     /**
      * Realiza el pago al jugador.
+     *
+     * @param player   Jugador que recibe el pago.
+     * @param cantidad Cantidad a pagar.
      */
     protected void pagarJugador(ServerPlayerEntity player, int cantidad) {
         PagoManager.pagarJugador(player, cantidad);
@@ -88,6 +108,8 @@ public abstract class ComercianteEntity extends LivingEntity {
 
     /**
      * Devuelve los atributos base para esta entidad.
+     *
+     * @return Builder de atributos.
      */
     public static DefaultAttributeContainer.Builder createComercianteAttributes() {
         return LivingEntity.createLivingAttributes()
@@ -97,6 +119,12 @@ public abstract class ComercianteEntity extends LivingEntity {
 
     /**
      * Remueve una cantidad específica de un item del inventario del jugador y retorna el pago correspondiente.
+     *
+     * @param player   Jugador del que se removerán los items.
+     * @param item     Item a remover.
+     * @param cantidad Cantidad de items a remover.
+     * @param pago     Cantidad a pagar por la remoción.
+     * @return Cantidad pagada si se removieron suficientes items, 0 en caso contrario.
      */
     protected int removerItems(ServerPlayerEntity player, net.minecraft.item.Item item, int cantidad, int pago) {
         int cantidadRemovida = 0;

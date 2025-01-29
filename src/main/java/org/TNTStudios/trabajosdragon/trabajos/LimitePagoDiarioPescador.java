@@ -29,12 +29,12 @@ public class LimitePagoDiarioPescador {
         int pagoActual = pagosDiarios.getOrDefault(uuid, 0);
 
         if (pagoActual >= LIMITE_PESCADOR) {
-            return false; // Ya alcanzó el límite.
+            return false;
         }
 
         int nuevoSaldo = pagoActual + cantidad;
         if (nuevoSaldo > LIMITE_PESCADOR) {
-            cantidad = LIMITE_PESCADOR - pagoActual; // Ajustar para no exceder el límite.
+            cantidad = LIMITE_PESCADOR - pagoActual;
         }
 
         pagosDiarios.put(uuid, nuevoSaldo);

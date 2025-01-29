@@ -7,12 +7,14 @@ import org.TNTStudios.trabajosdragon.entidades.AgricultorEntity;
 import org.TNTStudios.trabajosdragon.entidades.CartografoEntity;
 import org.TNTStudios.trabajosdragon.entidades.PescadorEntity;
 import org.TNTStudios.trabajosdragon.trabajos.*;
-
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.UUID;
 
+/**
+ * Clase para manejar la carga y el guardado de datos persistentes.
+ */
 public class DataManager {
     private static final Gson gson = new Gson();
     private static final String DATA_DIR = "config/trabajosdragon";
