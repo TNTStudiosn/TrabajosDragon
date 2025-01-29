@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class TrabajoCommand {
-    private static final List<String> TRABAJOS_DISPONIBLES = Arrays.asList("Minero", "Lenador", "Cazador");
+    private static final List<String> TRABAJOS_DISPONIBLES = Arrays.asList("Minero", "Lenador", "Cazador", "Agricultor", "Pescador", "Arquitecto", "Cartografo", "Constructor", "Explorador", "Cazador", "Decorador", "RedStoner", "Granjero", "Repartidor", "Policia", "Medico");
 
     public static void registrar() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
