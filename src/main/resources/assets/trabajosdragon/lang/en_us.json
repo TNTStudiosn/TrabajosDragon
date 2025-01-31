@@ -2,6 +2,7 @@
   "entity.trabajosdragon.agricultor": "Agricultor",
   "entity.trabajosdragon.pescador": "Pescador",
   "entity.trabajosdragon.cartografo": "Cartógrafo",
+  "entity.trabajosdragon.carnicero": "Carnicero",
 
   "message.trabajosdragon.payment_received": "✔ Has recibido $%s por tu venta.",
   "message.trabajosdragon.payment_limit_reached": "⚠ Has alcanzado el límite de dinero diario para este trabajo.",

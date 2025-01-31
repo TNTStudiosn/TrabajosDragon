@@ -13,5 +13,6 @@ public class TrabajosdragonClient implements ClientModInitializer {
         EntityRendererRegistry.register(Trabajosdragon.AGRICULTOR, ComercianteRenderer::new);
         EntityRendererRegistry.register(Trabajosdragon.PESCADOR, ComercianteRenderer::new);
         EntityRendererRegistry.register(Trabajosdragon.CARTOGRAFO, ComercianteRenderer::new);
+        EntityRendererRegistry.register(Trabajosdragon.CARNICERO, ComercianteRenderer::new);
     }
 }

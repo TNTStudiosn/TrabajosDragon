@@ -11,10 +11,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.TNTStudios.trabajosdragon.commands.TrabajoCommand;
 import org.TNTStudios.trabajosdragon.commands.TrabajosCommand;
-import org.TNTStudios.trabajosdragon.entidades.AgricultorEntity;
-import org.TNTStudios.trabajosdragon.entidades.CartografoEntity;
-import org.TNTStudios.trabajosdragon.entidades.ComercianteEntity;
-import org.TNTStudios.trabajosdragon.entidades.PescadorEntity;
+import org.TNTStudios.trabajosdragon.entidades.*;
 import org.TNTStudios.trabajosdragon.trabajos.EventoCazador;
 import org.TNTStudios.trabajosdragon.trabajos.EventoLenador;
 import org.TNTStudios.trabajosdragon.trabajos.EventoMinero;
@@ -39,6 +36,15 @@ public class Trabajosdragon implements ModInitializer {
             FabricEntityTypeBuilder.create().entityFactory(CartografoEntity::new).dimensions(EntityDimensions.fixed(0.6f, 1.8f)).build()
     );
 
+    public static final EntityType<CarniceroEntity> CARNICERO = Registry.register(
+            Registries.ENTITY_TYPE,
+            new Identifier("trabajosdragon", "carnicero"),
+            FabricEntityTypeBuilder.create().entityFactory(CarniceroEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.6f, 1.8f))
+                    .build()
+    );
+
+
 
     @Override
     public void onInitialize() {
@@ -53,6 +59,7 @@ public class Trabajosdragon implements ModInitializer {
         FabricDefaultAttributeRegistry.register(AGRICULTOR, ComercianteEntity.createComercianteAttributes());
         FabricDefaultAttributeRegistry.register(PESCADOR, ComercianteEntity.createComercianteAttributes());
         FabricDefaultAttributeRegistry.register(CARTOGRAFO, ComercianteEntity.createComercianteAttributes());
+        FabricDefaultAttributeRegistry.register(CARNICERO, ComercianteEntity.createComercianteAttributes());
     }
 
 }

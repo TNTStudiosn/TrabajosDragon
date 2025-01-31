@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.TNTStudios.trabajosdragon.entidades.AgricultorEntity;
 import org.TNTStudios.trabajosdragon.entidades.CartografoEntity;
 import org.TNTStudios.trabajosdragon.entidades.PescadorEntity;
+import org.TNTStudios.trabajosdragon.entidades.CarniceroEntity;
 import org.TNTStudios.trabajosdragon.trabajos.*;
 import java.io.*;
 import java.lang.reflect.Type;
@@ -110,6 +111,7 @@ public class DataManager {
             limites.put("Agricultor", convertirUUIDaString(AgricultorEntity.getPagosDiarios()));
             limites.put("Pescador", convertirUUIDaString(PescadorEntity.getPagosDiarios()));
             limites.put("Cartografo", convertirUUIDaString(CartografoEntity.getPagosDiarios()));
+            limites.put("Carnicero", convertirUUIDaString(CarniceroEntity.getPagosDiarios()));
 
             gson.toJson(limites, writer);
         } catch (IOException e) {
@@ -157,6 +159,11 @@ public class DataManager {
             if (limites.containsKey("Cartografo")) {
                 HashMap<UUID, Integer> limitesCartografo = convertirStringaUUID(limites.get("Cartografo"));
                 CartografoEntity.setPagosDiarios(limitesCartografo);
+            }
+
+            if (limites.containsKey("Carnicero")) {
+                HashMap<UUID, Integer> limitesCarnicero = convertirStringaUUID(limites.get("Carnicero"));
+                CarniceroEntity.setPagosDiarios(limitesCarnicero);
             }
         } catch (IOException e) {
             e.printStackTrace();
