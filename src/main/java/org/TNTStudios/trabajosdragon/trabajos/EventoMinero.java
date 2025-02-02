@@ -39,17 +39,29 @@ public class EventoMinero {
      * Obtiene la cantidad de pago correspondiente a cada mineral minado.
      */
     private static int obtenerPagoPorMineral(Block block) {
+        // Minerales comunes
         if (block == Blocks.COAL_ORE || block == Blocks.DEEPSLATE_COAL_ORE) {
             return 2;
         } else if (block == Blocks.IRON_ORE || block == Blocks.DEEPSLATE_IRON_ORE) {
             return 4;
-        } else if (block == Blocks.GOLD_ORE || block == Blocks.DEEPSLATE_GOLD_ORE) {
+        } else if (block == Blocks.COPPER_ORE || block == Blocks.DEEPSLATE_COPPER_ORE) {
+            return 3;
+        } else if (block == Blocks.GOLD_ORE || block == Blocks.DEEPSLATE_GOLD_ORE || block == Blocks.NETHER_GOLD_ORE) {
             return 6;
+        } else if (block == Blocks.LAPIS_ORE || block == Blocks.DEEPSLATE_LAPIS_ORE) {
+            return 5;
+        } else if (block == Blocks.REDSTONE_ORE || block == Blocks.DEEPSLATE_REDSTONE_ORE) {
+            return 4;
+        } else if (block == Blocks.EMERALD_ORE || block == Blocks.DEEPSLATE_EMERALD_ORE) {
+            return 8;
         } else if (block == Blocks.DIAMOND_ORE || block == Blocks.DEEPSLATE_DIAMOND_ORE) {
             return 10;
+        } else if (block == Blocks.NETHER_QUARTZ_ORE) {
+            return 3;
         } else if (block == Blocks.ANCIENT_DEBRIS) {
             return 20;
         }
         return 0;
     }
+
 }
