@@ -5,6 +5,10 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.query.QueryOptions;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -17,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class TrabajoCommand {
-    private static final List<String> TRABAJOS_DISPONIBLES = Arrays.asList("Minero", "Lenador", "Cazador", "Agricultor", "Pescador", "Arquitecto", "Cartografo", "Decorador", "Carnicero", "Medico", "Herrero");
+    private static final List<String> TRABAJOS_DISPONIBLES = Arrays.asList("Minero", "Lenador", "Cazador", "Agricultor", "Pescador", "Arquitecto", "Cartografo", "Decorador", "Carnicero", "Medico");
 
     public static void registrar() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
@@ -52,7 +56,7 @@ public class TrabajoCommand {
                             })
                     )
                     .then(CommandManager.literal("remover")
-                            .requires(source -> source.hasPermissionLevel(4)) // Solo operadores
+                            .requires(source -> hasPermission(source, "DragonEconomy.remover")) // Solo usuarios con permisos
                             .then(CommandManager.argument("jugador", StringArgumentType.string())
                                     .suggests((context, builder) -> {
                                         context.getSource().getServer().getPlayerManager().getPlayerList().forEach(player ->
@@ -87,6 +91,21 @@ public class TrabajoCommand {
                     )
             );
         });
+    }
+
+    private static boolean hasPermission(ServerCommandSource source, String permission) {
+        if (source.getEntity() instanceof ServerPlayerEntity player) {
+            LuckPerms luckPerms = LuckPermsProvider.get();
+            User user = luckPerms.getUserManager().getUser(player.getUuid());
+            if (user != null) {
+                return user.getCachedData()
+                        .getPermissionData(luckPerms.getContextManager().getQueryOptions(user)
+                                .orElse(QueryOptions.defaultContextualOptions())) // Manejo del Optional
+                        .checkPermission(permission)
+                        .asBoolean();
+            }
+        }
+        return false;
     }
 
     /**
