@@ -9,8 +9,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.TNTStudios.trabajosdragon.trabajos.*;
 
-import java.util.HashMap;
-
 public class ResetPagosCommand {
 
     public static void registrar() {
@@ -20,18 +18,25 @@ public class ResetPagosCommand {
                     .executes(context -> {
                         ServerCommandSource source = context.getSource();
 
-                        // Reiniciar los límites de pago de cada tipo de trabajo
-                        LimitePagoDiario.setPagosDiarios(new HashMap<>());
-                        LimitePagoDiarioAgricultor.setPagosDiarios(new HashMap<>());
-                        LimitePagoDiarioCarnicero.setPagosDiarios(new HashMap<>());
-                        LimitePagoDiarioCartografo.setPagosDiarios(new HashMap<>());
-                        LimitePagoDiarioCazador.setPagosDiarios(new HashMap<>());
-                        LimitePagoDiarioLenador.setPagosDiarios(new HashMap<>());
-                        LimitePagoDiarioPescador.setPagosDiarios(new HashMap<>());
+                        // Reiniciar los límites de pago de TODOS los jugadores (conectados y desconectados)
+                        LimitePagoDiario.resetearLimitesDiarios();
+                        LimitePagoDiarioAgricultor.resetearLimitesDiarios();
+                        LimitePagoDiarioCarnicero.resetearLimitesDiarios();
+                        LimitePagoDiarioCartografo.resetearLimitesDiarios();
+                        LimitePagoDiarioCazador.resetearLimitesDiarios();
+                        LimitePagoDiarioLenador.resetearLimitesDiarios();
+                        LimitePagoDiarioPescador.resetearLimitesDiarios();
 
-                        // Mensaje de confirmación
-                        source.sendMessage(Text.literal("✔ Se han reiniciado todos los límites de pago diario.")
-                                .formatted(Formatting.GREEN));
+                        // Enviar mensaje a todos los jugadores en línea
+                        Text mensaje = Text.literal("✔ Se han reiniciado todos los límites de pago diario.")
+                                .formatted(Formatting.GREEN);
+
+                        for (ServerPlayerEntity player : source.getServer().getPlayerManager().getPlayerList()) {
+                            player.sendMessage(mensaje, false);
+                        }
+
+                        // También mostrarlo en la consola del servidor
+                        source.sendMessage(mensaje);
 
                         return 1;
                     })

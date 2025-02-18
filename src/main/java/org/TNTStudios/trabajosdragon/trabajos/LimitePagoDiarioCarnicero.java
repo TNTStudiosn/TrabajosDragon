@@ -1,6 +1,7 @@
 package org.TNTStudios.trabajosdragon.trabajos;
 
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.TNTStudios.trabajosdragon.DataManager;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -11,9 +12,8 @@ import java.util.UUID;
  * Maneja los límites de pago diarios para el trabajo de Carnicero.
  */
 public class LimitePagoDiarioCarnicero {
-    private static final HashMap<UUID, Integer> pagosDiarios = new HashMap<>();
+    private static HashMap<UUID, Integer> pagosDiarios = new HashMap<>();
     private static LocalDate ultimaFecha = obtenerFechaCDMX();
-    // Ajusta este límite a tu gusto (400, 500, etc.)
     private static final int LIMITE_CARNICERO = 400;
 
     /**
@@ -29,40 +29,52 @@ public class LimitePagoDiarioCarnicero {
             return false; // Límite alcanzado.
         }
 
-        int nuevoSaldo = pagoActual + cantidad;
-        if (nuevoSaldo > LIMITE_CARNICERO) {
-            // Ajustamos para que no sobrepase
-            cantidad = LIMITE_CARNICERO - pagoActual;
-        }
-
+        int nuevoSaldo = Math.min(pagoActual + cantidad, LIMITE_CARNICERO);
         pagosDiarios.put(uuid, nuevoSaldo);
+
+        DataManager.saveData(); // Guardar cambios en el archivo
         return true;
     }
 
     /**
-     * Devuelve la fecha actual en la zona horaria de CDMX.
+     * Obtiene la fecha actual en la zona horaria de CDMX.
      */
     private static LocalDate obtenerFechaCDMX() {
         return LocalDate.now(ZoneId.of("America/Mexico_City"));
     }
 
     /**
-     * Reinicia los límites de pago diario si ha pasado la medianoche.
+     * Reinicia los límites de pago diario para todos los jugadores si ha pasado la medianoche.
      */
     private static void resetearSiEsNecesario() {
         LocalDate fechaActual = obtenerFechaCDMX();
         if (!fechaActual.equals(ultimaFecha)) {
-            pagosDiarios.clear();
-            ultimaFecha = fechaActual;
+            resetearLimitesDiarios();
         }
     }
 
-    public HashMap<UUID, Integer> getPagosDiarios() {
+    /**
+     * Reinicia los límites diarios de pago para todos los jugadores.
+     */
+    public static void resetearLimitesDiarios() {
+        pagosDiarios.clear();
+        ultimaFecha = obtenerFechaCDMX();
+        DataManager.saveData();
+    }
+
+    /**
+     * Obtiene el mapa de pagos diarios.
+     */
+    public static HashMap<UUID, Integer> getPagosDiarios() {
+        resetearSiEsNecesario();
         return pagosDiarios;
     }
 
+    /**
+     * Establece el mapa de pagos diarios y lo guarda en el archivo.
+     */
     public static void setPagosDiarios(HashMap<UUID, Integer> pagosCargados) {
-        pagosDiarios.clear();
-        pagosDiarios.putAll(pagosCargados);
+        pagosDiarios = pagosCargados;
+        DataManager.saveData();
     }
 }

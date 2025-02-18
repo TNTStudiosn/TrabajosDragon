@@ -1,6 +1,7 @@
 package org.TNTStudios.trabajosdragon.trabajos;
 
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.TNTStudios.trabajosdragon.DataManager;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -11,16 +12,12 @@ import java.util.UUID;
  * Maneja los límites de pago diarios para el trabajo de Cartógrafo.
  */
 public class LimitePagoDiarioCartografo {
-    private static final HashMap<UUID, Integer> pagosDiarios = new HashMap<>();
+    private static HashMap<UUID, Integer> pagosDiarios = new HashMap<>();
     private static LocalDate ultimaFecha = obtenerFechaCDMX();
-    private static final int LIMITE_CARTOGRAFO = 350; // Define el límite diario para Cartógrafo
+    private static final int LIMITE_CARTOGRAFO = 350; // Límite de pago diario para Cartógrafo
 
     /**
      * Agrega una cantidad de pago al jugador, respetando el límite diario.
-     *
-     * @param player   Jugador que recibe el pago.
-     * @param cantidad Cantidad a agregar.
-     * @return {@code true} si se realizó el pago, {@code false} si el límite fue alcanzado.
      */
     public static boolean agregarPago(ServerPlayerEntity player, int cantidad) {
         resetearSiEsNecesario();
@@ -29,22 +26,18 @@ public class LimitePagoDiarioCartografo {
         int pagoActual = pagosDiarios.getOrDefault(uuid, 0);
 
         if (pagoActual >= LIMITE_CARTOGRAFO) {
-            return false; // Ya alcanzó el límite.
+            return false; // Límite alcanzado
         }
 
-        int nuevoSaldo = pagoActual + cantidad;
-        if (nuevoSaldo > LIMITE_CARTOGRAFO) {
-            cantidad = LIMITE_CARTOGRAFO - pagoActual; // Ajustar para no exceder el límite.
-        }
-
+        int nuevoSaldo = Math.min(pagoActual + cantidad, LIMITE_CARTOGRAFO);
         pagosDiarios.put(uuid, nuevoSaldo);
+
+        DataManager.saveData(); // Guardar cambios en el archivo
         return true;
     }
 
     /**
      * Obtiene la fecha actual en la zona horaria de CDMX.
-     *
-     * @return Fecha actual.
      */
     private static LocalDate obtenerFechaCDMX() {
         return LocalDate.now(ZoneId.of("America/Mexico_City"));
@@ -56,27 +49,32 @@ public class LimitePagoDiarioCartografo {
     private static void resetearSiEsNecesario() {
         LocalDate fechaActual = obtenerFechaCDMX();
         if (!fechaActual.equals(ultimaFecha)) {
-            pagosDiarios.clear();
-            ultimaFecha = fechaActual;
+            resetearLimitesDiarios();
         }
     }
 
     /**
+     * Reinicia los límites diarios de pago para todos los jugadores.
+     */
+    public static void resetearLimitesDiarios() {
+        pagosDiarios.clear();
+        ultimaFecha = obtenerFechaCDMX();
+        DataManager.saveData();
+    }
+
+    /**
      * Obtiene el mapa de pagos diarios.
-     *
-     * @return Mapa de pagos diarios.
      */
     public static HashMap<UUID, Integer> getPagosDiarios() {
+        resetearSiEsNecesario();
         return pagosDiarios;
     }
 
     /**
-     * Establece el mapa de pagos diarios (usado por DataManager).
-     *
-     * @param pagosCargados Mapa de pagos diarios cargados.
+     * Establece el mapa de pagos diarios y lo guarda en el archivo.
      */
     public static void setPagosDiarios(HashMap<UUID, Integer> pagosCargados) {
-        pagosDiarios.clear();
-        pagosDiarios.putAll(pagosCargados);
+        pagosDiarios = pagosCargados;
+        DataManager.saveData();
     }
 }

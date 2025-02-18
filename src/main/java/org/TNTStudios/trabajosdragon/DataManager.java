@@ -3,13 +3,13 @@ package org.TNTStudios.trabajosdragon;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import org.TNTStudios.trabajosdragon.entidades.AgricultorEntity;
-import org.TNTStudios.trabajosdragon.entidades.CartografoEntity;
-import org.TNTStudios.trabajosdragon.entidades.PescadorEntity;
-import org.TNTStudios.trabajosdragon.entidades.CarniceroEntity;
+import org.TNTStudios.trabajosdragon.entidades.*;
 import org.TNTStudios.trabajosdragon.trabajos.*;
+
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -21,6 +21,7 @@ public class DataManager {
     private static final String DATA_DIR = "config/trabajosdragon";
     private static final String TRABAJOS_FILE = "trabajos.json";
     private static final String LIMITES_FILE = "limites.json";
+    private static LocalDate ultimaFechaGuardada = obtenerFechaCDMX();
 
     /**
      * Inicializa el DataManager registrando los eventos de carga y guardado.
@@ -33,7 +34,10 @@ public class DataManager {
         }
 
         // Cargar datos al iniciar el servidor
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> loadData());
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            loadData();
+            verificarResetDiario();
+        });
 
         // Guardar datos al detener el servidor
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> saveData());
@@ -57,12 +61,9 @@ public class DataManager {
 
     /**
      * Guarda el mapa de trabajos en un archivo JSON.
-     *
-     * @param file Archivo donde se guardarán los trabajos.
      */
     private static void saveTrabajos(File file) {
         try (Writer writer = new FileWriter(file)) {
-            // Convertir HashMap<UUID, String> a HashMap<String, String>
             HashMap<String, String> trabajosStringMap = new HashMap<>();
             for (HashMap.Entry<UUID, String> entry : TrabajoManager.getTrabajos().entrySet()) {
                 trabajosStringMap.put(entry.getKey().toString(), entry.getValue());
@@ -75,8 +76,6 @@ public class DataManager {
 
     /**
      * Carga el mapa de trabajos desde un archivo JSON.
-     *
-     * @param file Archivo de donde se cargarán los trabajos.
      */
     private static void loadTrabajos(File file) {
         if (!file.exists()) return;
@@ -96,15 +95,10 @@ public class DataManager {
 
     /**
      * Guarda los límites diarios en un archivo JSON.
-     *
-     * @param file Archivo donde se guardarán los límites.
      */
     private static void saveLimites(File file) {
         try (Writer writer = new FileWriter(file)) {
-            // Combina todos los límites en un solo objeto para simplificar
             HashMap<String, HashMap<String, Integer>> limites = new HashMap<>();
-
-            // Convertir cada HashMap<UUID, Integer> a HashMap<String, Integer>
             limites.put("Minero", convertirUUIDaString(LimitePagoDiario.getPagosDiarios()));
             limites.put("Cazador", convertirUUIDaString(LimitePagoDiarioCazador.getPagosDiarios()));
             limites.put("Lenador", convertirUUIDaString(LimitePagoDiarioLenador.getPagosDiarios()));
@@ -120,9 +114,7 @@ public class DataManager {
     }
 
     /**
-     * Carga los límites diarios desde un archivo JSON.
-     *
-     * @param file Archivo de donde se cargarán los límites.
+     * Carga los límites diarios desde un archivo JSON y reinicia si es necesario.
      */
     private static void loadLimites(File file) {
         if (!file.exists()) return;
@@ -132,49 +124,60 @@ public class DataManager {
             HashMap<String, HashMap<String, Integer>> limites = gson.fromJson(reader, type);
 
             if (limites.containsKey("Minero")) {
-                HashMap<UUID, Integer> limitesMinero = convertirStringaUUID(limites.get("Minero"));
-                LimitePagoDiario.setPagosDiarios(limitesMinero);
+                LimitePagoDiario.setPagosDiarios(convertirStringaUUID(limites.get("Minero")));
             }
-
             if (limites.containsKey("Cazador")) {
-                HashMap<UUID, Integer> limitesCazador = convertirStringaUUID(limites.get("Cazador"));
-                LimitePagoDiarioCazador.setPagosDiarios(limitesCazador);
+                LimitePagoDiarioCazador.setPagosDiarios(convertirStringaUUID(limites.get("Cazador")));
             }
-
             if (limites.containsKey("Lenador")) {
-                HashMap<UUID, Integer> limitesLenador = convertirStringaUUID(limites.get("Lenador"));
-                LimitePagoDiarioLenador.setPagosDiarios(limitesLenador);
+                LimitePagoDiarioLenador.setPagosDiarios(convertirStringaUUID(limites.get("Lenador")));
             }
-
             if (limites.containsKey("Agricultor")) {
-                HashMap<UUID, Integer> limitesAgricultor = convertirStringaUUID(limites.get("Agricultor"));
-                AgricultorEntity.setPagosDiarios(limitesAgricultor);
+                AgricultorEntity.setPagosDiarios(convertirStringaUUID(limites.get("Agricultor")));
             }
-
             if (limites.containsKey("Pescador")) {
-                HashMap<UUID, Integer> limitesPescador = convertirStringaUUID(limites.get("Pescador"));
-                PescadorEntity.setPagosDiarios(limitesPescador);
+                PescadorEntity.setPagosDiarios(convertirStringaUUID(limites.get("Pescador")));
             }
-
             if (limites.containsKey("Cartografo")) {
-                HashMap<UUID, Integer> limitesCartografo = convertirStringaUUID(limites.get("Cartografo"));
-                CartografoEntity.setPagosDiarios(limitesCartografo);
+                CartografoEntity.setPagosDiarios(convertirStringaUUID(limites.get("Cartografo")));
+            }
+            if (limites.containsKey("Carnicero")) {
+                CarniceroEntity.setPagosDiarios(convertirStringaUUID(limites.get("Carnicero")));
             }
 
-            if (limites.containsKey("Carnicero")) {
-                HashMap<UUID, Integer> limitesCarnicero = convertirStringaUUID(limites.get("Carnicero"));
-                CarniceroEntity.setPagosDiarios(limitesCarnicero);
-            }
+            verificarResetDiario();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     /**
+     * Reinicia los límites de pago si ha cambiado el día.
+     */
+    private static void verificarResetDiario() {
+        LocalDate fechaActual = obtenerFechaCDMX();
+        if (!fechaActual.equals(ultimaFechaGuardada)) {
+            LimitePagoDiario.resetearLimitesDiarios();
+            LimitePagoDiarioAgricultor.resetearLimitesDiarios();
+            LimitePagoDiarioCarnicero.resetearLimitesDiarios();
+            LimitePagoDiarioCartografo.resetearLimitesDiarios();
+            LimitePagoDiarioCazador.resetearLimitesDiarios();
+            LimitePagoDiarioLenador.resetearLimitesDiarios();
+            LimitePagoDiarioPescador.resetearLimitesDiarios();
+            ultimaFechaGuardada = fechaActual;
+            saveData();
+        }
+    }
+
+    /**
+     * Obtiene la fecha actual en la zona horaria de CDMX.
+     */
+    private static LocalDate obtenerFechaCDMX() {
+        return LocalDate.now(ZoneId.of("America/Mexico_City"));
+    }
+
+    /**
      * Convierte un HashMap con claves UUID a un HashMap con claves String.
-     *
-     * @param original Mapa original con claves UUID.
-     * @return Nuevo mapa con claves convertidas a String.
      */
     private static HashMap<String, Integer> convertirUUIDaString(HashMap<UUID, Integer> original) {
         HashMap<String, Integer> convertido = new HashMap<>();
@@ -186,9 +189,6 @@ public class DataManager {
 
     /**
      * Convierte un HashMap con claves String a un HashMap con claves UUID.
-     *
-     * @param original Mapa original con claves String.
-     * @return Nuevo mapa con claves convertidas a UUID.
      */
     private static HashMap<UUID, Integer> convertirStringaUUID(HashMap<String, Integer> original) {
         HashMap<UUID, Integer> convertido = new HashMap<>();
@@ -196,7 +196,6 @@ public class DataManager {
             try {
                 convertido.put(UUID.fromString(entry.getKey()), entry.getValue());
             } catch (IllegalArgumentException e) {
-                // Clave inválida, puedes manejar el error aquí si lo deseas
                 e.printStackTrace();
             }
         }

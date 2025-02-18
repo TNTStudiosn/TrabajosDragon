@@ -1,12 +1,16 @@
 package org.TNTStudios.trabajosdragon.trabajos;
 
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.TNTStudios.trabajosdragon.DataManager;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.UUID;
 
+/**
+ * Maneja los límites de pago diarios para el trabajo de Minero.
+ */
 public class LimitePagoDiario {
     private static HashMap<UUID, Integer> pagosDiarios = new HashMap<>();
     private static LocalDate ultimaFecha = obtenerFechaCDMX();
@@ -25,12 +29,10 @@ public class LimitePagoDiario {
             return false; // Ya alcanzó el límite.
         }
 
-        int nuevoSaldo = pagoActual + cantidad;
-        if (nuevoSaldo > LIMITE_MINERO) {
-            cantidad = LIMITE_MINERO - pagoActual; // Ajustar para no exceder el límite.
-        }
-
+        int nuevoSaldo = Math.min(pagoActual + cantidad, LIMITE_MINERO);
         pagosDiarios.put(uuid, nuevoSaldo);
+
+        DataManager.saveData(); // Guardar cambios en el archivo
         return true;
     }
 
@@ -47,22 +49,32 @@ public class LimitePagoDiario {
     private static void resetearSiEsNecesario() {
         LocalDate fechaActual = obtenerFechaCDMX();
         if (!fechaActual.equals(ultimaFecha)) {
-            pagosDiarios.clear();
-            ultimaFecha = fechaActual;
+            resetearLimitesDiarios();
         }
+    }
+
+    /**
+     * Reinicia los límites diarios de pago para todos los jugadores.
+     */
+    public static void resetearLimitesDiarios() {
+        pagosDiarios.clear();
+        ultimaFecha = obtenerFechaCDMX();
+        DataManager.saveData();
     }
 
     /**
      * Obtiene el mapa de pagos diarios.
      */
     public static HashMap<UUID, Integer> getPagosDiarios() {
+        resetearSiEsNecesario();
         return pagosDiarios;
     }
 
     /**
-     * Establece el mapa de pagos diarios (usado por DataManager).
+     * Establece el mapa de pagos diarios y lo guarda en el archivo.
      */
     public static void setPagosDiarios(HashMap<UUID, Integer> pagosCargados) {
         pagosDiarios = pagosCargados;
+        DataManager.saveData();
     }
 }
