@@ -9,6 +9,7 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import org.TNTStudios.trabajosdragon.commands.ResetPagosCommand;
 import org.TNTStudios.trabajosdragon.commands.TrabajoCommand;
 import org.TNTStudios.trabajosdragon.commands.TrabajosCommand;
 import org.TNTStudios.trabajosdragon.entidades.*;
@@ -54,6 +55,8 @@ public class Trabajosdragon implements ModInitializer {
         EventoLenador.registrar();
         EventoCazador.registrar();
         DataManager.initialize();
+        ResetPagosCommand.registrar();
+
 
         // Registrar atributos para evitar NullPointerException en la carga de entidades
         FabricDefaultAttributeRegistry.register(AGRICULTOR, ComercianteEntity.createComercianteAttributes());

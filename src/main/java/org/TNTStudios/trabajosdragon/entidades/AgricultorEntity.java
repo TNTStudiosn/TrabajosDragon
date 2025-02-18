@@ -31,14 +31,28 @@ public class AgricultorEntity extends ComercianteEntity {
     protected void manejarVenta(ServerPlayerEntity player) {
         int totalPago = 0;
 
-        // Definir las opciones de venta: Item, Cantidad por grupo, Pago por grupo
+        // Lista de ítems cultivables que el Agricultor puede comprar
         SaleOption[] opcionesVenta = {
                 new SaleOption(Items.WHEAT, 5, 1),
                 new SaleOption(Items.CARROT, 5, 1),
                 new SaleOption(Items.POTATO, 5, 1),
-                new SaleOption(Items.MELON, 5, 2),
+                new SaleOption(Items.BEETROOT, 5, 2),
+                new SaleOption(Items.MELON_SLICE, 5, 2),
                 new SaleOption(Items.PUMPKIN, 5, 2),
-                new SaleOption(Items.NETHER_WART, 5, 5)
+                new SaleOption(Items.SUGAR_CANE, 5, 3),
+                new SaleOption(Items.COCOA_BEANS, 5, 3),
+                new SaleOption(Items.NETHER_WART, 5, 5),
+                new SaleOption(Items.BAMBOO, 5, 2),
+                new SaleOption(Items.KELP, 5, 2),
+                new SaleOption(Items.DRIED_KELP, 5, 2),
+                new SaleOption(Items.RED_MUSHROOM, 5, 3),
+                new SaleOption(Items.BROWN_MUSHROOM, 5, 3),
+                new SaleOption(Items.SWEET_BERRIES, 5, 2),
+                new SaleOption(Items.GLOW_BERRIES, 5, 2),
+                new SaleOption(Items.APPLE, 3, 4),
+                new SaleOption(Items.CHORUS_FRUIT, 5, 5),
+                new SaleOption(Items.CACTUS, 5, 3),
+                new SaleOption(Items.SEA_PICKLE, 5, 3)
         };
 
         for (SaleOption opcion : opcionesVenta) {
@@ -64,7 +78,7 @@ public class AgricultorEntity extends ComercianteEntity {
         }
 
         if (totalPago == 0) {
-            player.sendMessage(Text.literal("⚠ No tienes items suficientes para vender.")
+            player.sendMessage(Text.literal("⚠ No tienes ítems suficientes para vender.")
                     .formatted(Formatting.RED), false);
         }
     }

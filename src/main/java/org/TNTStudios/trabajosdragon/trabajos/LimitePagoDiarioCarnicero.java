@@ -61,7 +61,7 @@ public class LimitePagoDiarioCarnicero {
         return pagosDiarios;
     }
 
-    public void setPagosDiarios(HashMap<UUID, Integer> pagosCargados) {
+    public static void setPagosDiarios(HashMap<UUID, Integer> pagosCargados) {
         pagosDiarios.clear();
         pagosDiarios.putAll(pagosCargados);
     }
